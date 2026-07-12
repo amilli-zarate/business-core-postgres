@@ -10,6 +10,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 dropdb \
     --username="$DB_USER" \
     --if-exists \
+    --force \
     "$DB_NAME"
 
 createdb \
