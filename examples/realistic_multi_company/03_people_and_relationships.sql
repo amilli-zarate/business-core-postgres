@@ -1372,3 +1372,5 @@ WHERE NOT EXISTS (
 );
 
 COMMIT;
+
+\echo '03_people_and_relationships.sql completed'
