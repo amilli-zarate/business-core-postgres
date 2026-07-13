@@ -10,8 +10,8 @@ BEGIN;
 -- Purpose:
 -- Seed a substantial, internally consistent document dataset:
 --
--- - additional reusable document types
--- - company-scoped document records
+-- - company-scoped document records classified with shared
+--   document types
 -- - realistic lifecycle states
 -- - versioned external file metadata
 -- - links to companies, people, branches, departments, and
@@ -25,6 +25,8 @@ BEGIN;
 --   illustrative metadata only.
 -- - Generated identities are always resolved through stable
 --   business keys; no BIGINT identity value is hard-coded.
+-- - Document types are defined by 01_shared_reference_data.sql
+--   and are only consumed here.
 -- - The script depends on 01_shared_reference_data.sql through
 --   05_finance.sql.
 -- - The script is safe to run more than once. Document records
@@ -239,91 +241,6 @@ END;
 $$;
 
 -- ============================================================
--- Additional generic document types
--- ============================================================
-
-INSERT INTO documents.document_types (
-    type_key,
-    type_name,
-    description,
-    default_retention_months,
-    requires_expiration_date,
-    is_active
-)
-VALUES
-    (
-        'corporate_record',
-        'Corporate Record',
-        'Foundational governance, registration, or corporate administration record.',
-        120,
-        FALSE,
-        TRUE
-    ),
-    (
-        'employee_handbook',
-        'Employee Handbook',
-        'Controlled handbook containing company-wide employment and workplace guidance.',
-        84,
-        FALSE,
-        TRUE
-    ),
-    (
-        'security_policy',
-        'Information Security Policy',
-        'Controlled policy for information security, acceptable use, and data protection.',
-        84,
-        FALSE,
-        TRUE
-    ),
-    (
-        'operating_procedure',
-        'Standard Operating Procedure',
-        'Controlled procedure describing repeatable operational activities and responsibilities.',
-        84,
-        FALSE,
-        TRUE
-    ),
-    (
-        'customer_agreement',
-        'Customer Agreement',
-        'Commercial agreement governing services or products supplied to a customer.',
-        84,
-        FALSE,
-        TRUE
-    ),
-    (
-        'supplier_agreement',
-        'Supplier Agreement',
-        'Commercial agreement governing products or services obtained from a supplier.',
-        84,
-        FALSE,
-        TRUE
-    ),
-    (
-        'financial_statement',
-        'Financial Statement',
-        'Periodic financial statement or controlled year-end financial reporting package.',
-        120,
-        FALSE,
-        TRUE
-    ),
-    (
-        'insurance_certificate',
-        'Insurance Certificate',
-        'Certificate evidencing active insurance coverage for a defined period.',
-        84,
-        TRUE,
-        TRUE
-    )
-ON CONFLICT (type_key) DO UPDATE
-SET
-    type_name = EXCLUDED.type_name,
-    description = EXCLUDED.description,
-    default_retention_months = EXCLUDED.default_retention_months,
-    requires_expiration_date = EXCLUDED.requires_expiration_date,
-    is_active = EXCLUDED.is_active;
-
--- ============================================================
 -- Fixture document specifications
 -- ============================================================
 
@@ -359,7 +276,7 @@ CROSS JOIN LATERAL (
     VALUES
         (
             'CORP-REG-001',
-            'corporate_record',
+            'general',
             profiles.company_label || ' corporate registration and governance record',
             CASE WHEN profiles.archival_date IS NULL THEN 'active' ELSE 'archived' END,
             'confidential',
@@ -377,7 +294,7 @@ CROSS JOIN LATERAL (
         ),
         (
             'HR-HBK-2025',
-            'employee_handbook',
+            'employment_document',
             profiles.company_label || ' employee handbook',
             CASE WHEN profiles.archival_date IS NULL THEN 'active' ELSE 'archived' END,
             'internal',
@@ -395,7 +312,7 @@ CROSS JOIN LATERAL (
         ),
         (
             'IT-SEC-2025',
-            'security_policy',
+            'policy',
             profiles.company_label || ' information security and acceptable-use policy',
             CASE WHEN profiles.archival_date IS NULL THEN 'active' ELSE 'archived' END,
             'restricted',
@@ -413,7 +330,7 @@ CROSS JOIN LATERAL (
         ),
         (
             'OPS-SOP-001',
-            'operating_procedure',
+            'procedure',
             profiles.company_label || ' primary operating procedure',
             CASE WHEN profiles.archival_date IS NULL THEN 'active' ELSE 'archived' END,
             'internal',
@@ -431,7 +348,7 @@ CROSS JOIN LATERAL (
         ),
         (
             'CTR-CUST-2025',
-            'customer_agreement',
+            'contract',
             profiles.company_label || ' master customer services agreement',
             CASE WHEN profiles.archival_date IS NULL THEN 'active' ELSE 'archived' END,
             'confidential',
@@ -452,7 +369,7 @@ CROSS JOIN LATERAL (
         ),
         (
             'CTR-SUP-2025',
-            'supplier_agreement',
+            'contract',
             profiles.company_label || ' strategic supplier framework agreement',
             CASE WHEN profiles.archival_date IS NULL THEN 'active' ELSE 'archived' END,
             'confidential',
@@ -527,7 +444,7 @@ CROSS JOIN LATERAL (
         ),
         (
             'INS-' || TO_CHAR(profiles.reference_date, 'YYYY'),
-            'insurance_certificate',
+            'compliance_certificate',
             profiles.company_label || ' commercial insurance certificate',
             CASE WHEN profiles.archival_date IS NULL THEN 'active' ELSE 'expired' END,
             'confidential',
@@ -654,7 +571,7 @@ CROSS JOIN LATERAL (
         ),
         (
             'HR-HBK-2023',
-            'employee_handbook',
+            'employment_document',
             profiles.company_label || ' superseded employee handbook',
             'superseded',
             'internal',
@@ -672,7 +589,7 @@ CROSS JOIN LATERAL (
         ),
         (
             'INS-OLD-001',
-            'insurance_certificate',
+            'compliance_certificate',
             profiles.company_label || ' expired prior insurance certificate',
             'expired',
             'confidential',
