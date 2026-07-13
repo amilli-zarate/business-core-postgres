@@ -7,12 +7,14 @@ BEGIN;
 -- Realistic multi-company example
 --
 -- Purpose:
--- Seed reference records that are intentionally shared by every
--- company in the example database.
+-- Seed reference records and platform-wide access-control
+-- definitions that are shared by every company in the example database.
 --
 -- Notes:
 -- - All records are synthetic demonstration data.
 -- - This script is safe to run more than once.
+-- - Permissions, access roles, and role-permission mappings are
+--   defined here and consumed by 04_identity.sql.
 -- - Retention periods are illustrative defaults only; they are
 --   not legal or regulatory guidance.
 -- ============================================================
@@ -59,135 +61,194 @@ INSERT INTO identity.permissions (
 )
 VALUES
     (
-        'platform.manage',
-        'Manage platform',
-        'Manage platform-wide configuration and shared reference data.'
+        'platform.settings.read',
+        'Read platform settings',
+        'View global platform configuration and shared settings.'
     ),
     (
-        'company.read',
-        'View companies',
-        'View company profiles and company-level configuration.'
+        'platform.settings.manage',
+        'Manage platform settings',
+        'Create or modify global platform configuration.'
     ),
     (
-        'company.manage',
+        'platform.identity.manage',
+        'Manage platform identity',
+        'Administer accounts, roles, and permissions across the platform.'
+    ),
+    (
+        'platform.audit.read',
+        'Read platform audit data',
+        'View audit information across every company.'
+    ),
+    (
+        'core.companies.read',
+        'Read companies',
+        'View company master data.'
+    ),
+    (
+        'core.companies.manage',
         'Manage companies',
-        'Create and update company profiles and company-level configuration.'
+        'Create or modify company master data.'
     ),
     (
-        'organization.read',
-        'View organizational structure',
-        'View branches, departments, addresses, and organizational hierarchies.'
+        'core.branches.read',
+        'Read branches',
+        'View company branches and operating locations.'
     ),
     (
-        'organization.manage',
-        'Manage organizational structure',
-        'Create and update branches, departments, addresses, and organizational hierarchies.'
+        'core.branches.manage',
+        'Manage branches',
+        'Create or modify company branches and operating locations.'
     ),
     (
-        'people.read',
-        'View people',
-        'View people and their contact information.'
+        'core.departments.read',
+        'Read departments',
+        'View organizational departments and reporting structure.'
     ),
     (
-        'people.manage',
-        'Manage people',
-        'Create and update people and their contact information.'
+        'core.departments.manage',
+        'Manage departments',
+        'Create or modify organizational departments.'
     ),
     (
-        'relationships.read',
-        'View business relationships',
+        'people.persons.read',
+        'Read people',
+        'View person profiles and contact information.'
+    ),
+    (
+        'people.persons.create',
+        'Create people',
+        'Create person profiles and contact information.'
+    ),
+    (
+        'people.persons.update',
+        'Update people',
+        'Modify person profiles and contact information.'
+    ),
+    (
+        'people.persons.archive',
+        'Archive people',
+        'Archive person profiles that are no longer operationally active.'
+    ),
+    (
+        'people.relationships.read',
+        'Read people relationships',
         'View company roles, department assignments, reporting lines, and person relationships.'
     ),
     (
-        'relationships.manage',
-        'Manage business relationships',
-        'Create and update company roles, department assignments, reporting lines, and person relationships.'
+        'people.relationships.manage',
+        'Manage people relationships',
+        'Create or modify company roles, department assignments, reporting lines, and person relationships.'
     ),
     (
         'identity.accounts.read',
-        'View user accounts',
-        'View application user accounts and authentication identities.'
+        'Read user accounts',
+        'View application accounts and authentication identities.'
     ),
     (
         'identity.accounts.manage',
         'Manage user accounts',
-        'Create, update, suspend, and close application user accounts.'
+        'Create, activate, suspend, disable, or close application accounts.'
     ),
     (
-        'identity.access.read',
-        'View access control',
-        'View access roles, permissions, and scoped role assignments.'
+        'identity.roles.read',
+        'Read access roles',
+        'View roles, permissions, and scoped role assignments.'
     ),
     (
-        'identity.access.manage',
-        'Manage access control',
-        'Manage access roles, permissions, and scoped role assignments.'
+        'identity.roles.manage',
+        'Manage access roles',
+        'Create roles, grant permissions, and administer scoped role assignments.'
     ),
     (
-        'finance.read',
-        'View finance data',
-        'View fiscal periods, cost centers, accounts, and financial transactions.'
+        'finance.accounts.read',
+        'Read financial accounts',
+        'View the chart of accounts and account balances.'
     ),
     (
-        'finance.manage',
-        'Manage finance data',
-        'Create and update fiscal periods, cost centers, accounts, and draft financial transactions.'
+        'finance.accounts.manage',
+        'Manage financial accounts',
+        'Create or modify chart-of-account records.'
     ),
     (
-        'finance.post',
+        'finance.transactions.read',
+        'Read financial transactions',
+        'View financial transactions and transaction lines.'
+    ),
+    (
+        'finance.transactions.create',
+        'Create financial transactions',
+        'Create draft financial transactions and transaction lines.'
+    ),
+    (
+        'finance.transactions.post',
         'Post financial transactions',
-        'Post and void financial transactions after validation.'
+        'Post validated financial transactions to the ledger.'
     ),
     (
-        'finance.periods.close',
-        'Close fiscal periods',
-        'Close and lock fiscal periods.'
+        'finance.transactions.approve',
+        'Approve financial transactions',
+        'Approve financial transactions that require authorization.'
     ),
     (
-        'documents.read',
-        'View documents',
-        'View document metadata, versions, links, and status history.'
+        'documents.records.read',
+        'Read documents',
+        'View document records and current document versions.'
     ),
     (
-        'documents.manage',
-        'Manage documents',
-        'Create and update document metadata, versions, links, and lifecycle information.'
+        'documents.records.create',
+        'Create documents',
+        'Create document records and upload initial versions.'
     ),
     (
-        'documents.approve',
+        'documents.records.update',
+        'Update documents',
+        'Modify document metadata and create new versions.'
+    ),
+    (
+        'documents.records.approve',
         'Approve documents',
-        'Approve, activate, supersede, or reject controlled documents.'
+        'Approve controlled documents and policy records.'
     ),
     (
-        'workflows.read',
-        'View workflows',
-        'View workflow definitions, instances, tasks, assignments, and history.'
+        'workflows.definitions.read',
+        'Read workflow definitions',
+        'View workflow definitions and workflow steps.'
     ),
     (
-        'workflows.manage',
-        'Manage workflows',
-        'Create and maintain workflow definitions, steps, and transitions.'
+        'workflows.definitions.manage',
+        'Manage workflow definitions',
+        'Create or modify workflow definitions and workflow steps.'
     ),
     (
-        'workflows.execute',
-        'Execute workflows',
-        'Start workflows and act on assigned workflow tasks.'
+        'workflows.instances.read',
+        'Read workflow instances',
+        'View workflow instances, tasks, and execution status.'
     ),
     (
-        'analytics.read',
-        'View analytics',
-        'View analytical and reporting interfaces.'
+        'workflows.instances.start',
+        'Start workflow instances',
+        'Start workflow instances for supported business entities.'
     ),
     (
-        'audit.read',
-        'View audit trail',
-        'View audit events and operational history.'
+        'workflows.tasks.manage',
+        'Manage workflow tasks',
+        'Assign, complete, reject, or otherwise process workflow tasks.'
+    ),
+    (
+        'analytics.views.read',
+        'Read analytics views',
+        'Query operational and management analytics views.'
+    ),
+    (
+        'audit.events.read',
+        'Read audit events',
+        'View company-scoped audit events and activity history.'
     )
 ON CONFLICT (permission_key) DO UPDATE
 SET
     permission_name = EXCLUDED.permission_name,
     permission_description = EXCLUDED.permission_description;
-
 
 -- ============================================================
 -- Access roles
@@ -205,7 +266,15 @@ VALUES
     (
         'platform_admin',
         'Platform Administrator',
-        'Full administrative access across the platform and all companies.',
+        'Full administrative access across the complete platform.',
+        'platform',
+        TRUE,
+        TRUE
+    ),
+    (
+        'platform_auditor',
+        'Platform Auditor',
+        'Cross-company read access for governance, risk, and audit review.',
         'platform',
         TRUE,
         TRUE
@@ -213,7 +282,55 @@ VALUES
     (
         'company_admin',
         'Company Administrator',
-        'Full administrative access within one company.',
+        'Administrative access within one company.',
+        'company',
+        TRUE,
+        TRUE
+    ),
+    (
+        'company_finance_manager',
+        'Company Finance Manager',
+        'Company-wide finance administration and transaction authority.',
+        'company',
+        TRUE,
+        TRUE
+    ),
+    (
+        'company_people_manager',
+        'Company People Manager',
+        'Company-wide people and organizational relationship administration.',
+        'company',
+        TRUE,
+        TRUE
+    ),
+    (
+        'company_operations_manager',
+        'Company Operations Manager',
+        'Company-wide operational coordination across branches and departments.',
+        'company',
+        TRUE,
+        TRUE
+    ),
+    (
+        'company_analyst',
+        'Company Analyst',
+        'Company-wide read access to operational data and analytics.',
+        'company',
+        TRUE,
+        TRUE
+    ),
+    (
+        'company_read_only',
+        'Company Read Only',
+        'Broad company-scoped read access without modification privileges.',
+        'company',
+        TRUE,
+        TRUE
+    ),
+    (
+        'service_integration',
+        'Service Integration',
+        'Non-human integration access for controlled automated processes.',
         'company',
         TRUE,
         TRUE
@@ -227,74 +344,26 @@ VALUES
         TRUE
     ),
     (
+        'branch_operator',
+        'Branch Operator',
+        'Day-to-day operational access within one branch.',
+        'branch',
+        TRUE,
+        TRUE
+    ),
+    (
         'department_manager',
         'Department Manager',
-        'People, document, workflow, and reporting access within one department.',
+        'Management and approval access within one department.',
         'department',
         TRUE,
         TRUE
     ),
     (
-        'finance_manager',
-        'Finance Manager',
-        'Full finance operations, transaction posting, period control, and financial reporting.',
-        'company',
-        TRUE,
-        TRUE
-    ),
-    (
-        'finance_analyst',
-        'Finance Analyst',
-        'Finance preparation, analysis, document review, and reporting access without posting authority.',
-        'company',
-        TRUE,
-        TRUE
-    ),
-    (
-        'people_manager',
-        'People Manager',
-        'Management of people, organizational relationships, and related documents and workflows.',
-        'company',
-        TRUE,
-        TRUE
-    ),
-    (
-        'operations_manager',
-        'Operations Manager',
-        'Management of organizational operations, relationships, documents, and workflows.',
-        'company',
-        TRUE,
-        TRUE
-    ),
-    (
-        'document_manager',
-        'Document Manager',
-        'Management and approval of controlled business documents.',
-        'company',
-        TRUE,
-        TRUE
-    ),
-    (
-        'workflow_manager',
-        'Workflow Manager',
-        'Design, maintenance, execution, and supervision of business workflows.',
-        'company',
-        TRUE,
-        TRUE
-    ),
-    (
-        'auditor',
-        'Auditor',
-        'Read-only access to business records, access configuration, analytics, and audit history.',
-        'company',
-        TRUE,
-        TRUE
-    ),
-    (
-        'read_only',
-        'Read Only',
-        'General read-only access to operational records and analytics within one company.',
-        'company',
+        'department_member',
+        'Department Member',
+        'Standard operational access within one department.',
+        'department',
         TRUE,
         TRUE
     )
@@ -305,217 +374,261 @@ SET
     role_scope = EXCLUDED.role_scope,
     is_system_role = EXCLUDED.is_system_role,
     is_active = EXCLUDED.is_active,
-    updated_at = NOW();
-
+    updated_at = now();
 
 -- ============================================================
 -- Role-permission mappings
 -- ============================================================
 
-WITH seeded_permissions AS (
-    SELECT
-        permission_id,
-        permission_key
-    FROM identity.permissions
-    WHERE permission_key = ANY (
-        ARRAY[
-            'platform.manage',
-            'company.read',
-            'company.manage',
-            'organization.read',
-            'organization.manage',
-            'people.read',
-            'people.manage',
-            'relationships.read',
-            'relationships.manage',
-            'identity.accounts.read',
-            'identity.accounts.manage',
-            'identity.access.read',
-            'identity.access.manage',
-            'finance.read',
-            'finance.manage',
-            'finance.post',
-            'finance.periods.close',
-            'documents.read',
-            'documents.manage',
-            'documents.approve',
-            'workflows.read',
-            'workflows.manage',
-            'workflows.execute',
-            'analytics.read',
-            'audit.read'
-        ]::TEXT[]
-    )
-),
-role_permission_keys (role_key, permission_key) AS (
-    -- Platform administrators receive every permission defined by this file.
-    SELECT
-        'platform_admin',
-        permission_key
-    FROM seeded_permissions
+-- Platform administrators receive every permission in the fixture.
 
-    UNION ALL
+INSERT INTO identity.role_permissions (
+    role_id,
+    permission_id
+)
+SELECT
+    r.role_id,
+    p.permission_id
+FROM identity.access_roles AS r
+CROSS JOIN identity.permissions AS p
+WHERE r.role_key = 'platform_admin'
+ON CONFLICT DO NOTHING;
 
-    -- Company administrators receive every seeded permission except
-    -- platform-wide administration.
-    SELECT
-        'company_admin',
-        permission_key
-    FROM seeded_permissions
-    WHERE permission_key <> 'platform.manage'
+-- All other roles receive explicit least-privilege permission sets.
 
-    UNION ALL
+WITH role_permission_pairs (
+    role_key,
+    permission_key
+) AS (
+    VALUES
+        -- Platform auditor
+        ('platform_auditor', 'platform.settings.read'),
+        ('platform_auditor', 'platform.audit.read'),
+        ('platform_auditor', 'core.companies.read'),
+        ('platform_auditor', 'core.branches.read'),
+        ('platform_auditor', 'core.departments.read'),
+        ('platform_auditor', 'people.persons.read'),
+        ('platform_auditor', 'people.relationships.read'),
+        ('platform_auditor', 'identity.accounts.read'),
+        ('platform_auditor', 'identity.roles.read'),
+        ('platform_auditor', 'finance.accounts.read'),
+        ('platform_auditor', 'finance.transactions.read'),
+        ('platform_auditor', 'documents.records.read'),
+        ('platform_auditor', 'workflows.definitions.read'),
+        ('platform_auditor', 'workflows.instances.read'),
+        ('platform_auditor', 'analytics.views.read'),
+        ('platform_auditor', 'audit.events.read'),
 
-    SELECT
-        role_key,
-        permission_key
-    FROM (
-        VALUES
-            -- Branch manager
-            ('branch_manager', 'company.read'),
-            ('branch_manager', 'organization.read'),
-            ('branch_manager', 'organization.manage'),
-            ('branch_manager', 'people.read'),
-            ('branch_manager', 'people.manage'),
-            ('branch_manager', 'relationships.read'),
-            ('branch_manager', 'relationships.manage'),
-            ('branch_manager', 'finance.read'),
-            ('branch_manager', 'documents.read'),
-            ('branch_manager', 'documents.manage'),
-            ('branch_manager', 'workflows.read'),
-            ('branch_manager', 'workflows.execute'),
-            ('branch_manager', 'analytics.read'),
+        -- Company administrator
+        ('company_admin', 'core.companies.read'),
+        ('company_admin', 'core.companies.manage'),
+        ('company_admin', 'core.branches.read'),
+        ('company_admin', 'core.branches.manage'),
+        ('company_admin', 'core.departments.read'),
+        ('company_admin', 'core.departments.manage'),
+        ('company_admin', 'people.persons.read'),
+        ('company_admin', 'people.persons.create'),
+        ('company_admin', 'people.persons.update'),
+        ('company_admin', 'people.persons.archive'),
+        ('company_admin', 'people.relationships.read'),
+        ('company_admin', 'people.relationships.manage'),
+        ('company_admin', 'identity.accounts.read'),
+        ('company_admin', 'identity.accounts.manage'),
+        ('company_admin', 'identity.roles.read'),
+        ('company_admin', 'identity.roles.manage'),
+        ('company_admin', 'finance.accounts.read'),
+        ('company_admin', 'finance.accounts.manage'),
+        ('company_admin', 'finance.transactions.read'),
+        ('company_admin', 'finance.transactions.create'),
+        ('company_admin', 'finance.transactions.post'),
+        ('company_admin', 'finance.transactions.approve'),
+        ('company_admin', 'documents.records.read'),
+        ('company_admin', 'documents.records.create'),
+        ('company_admin', 'documents.records.update'),
+        ('company_admin', 'documents.records.approve'),
+        ('company_admin', 'workflows.definitions.read'),
+        ('company_admin', 'workflows.definitions.manage'),
+        ('company_admin', 'workflows.instances.read'),
+        ('company_admin', 'workflows.instances.start'),
+        ('company_admin', 'workflows.tasks.manage'),
+        ('company_admin', 'analytics.views.read'),
+        ('company_admin', 'audit.events.read'),
 
-            -- Department manager
-            ('department_manager', 'company.read'),
-            ('department_manager', 'organization.read'),
-            ('department_manager', 'people.read'),
-            ('department_manager', 'relationships.read'),
-            ('department_manager', 'relationships.manage'),
-            ('department_manager', 'finance.read'),
-            ('department_manager', 'documents.read'),
-            ('department_manager', 'documents.manage'),
-            ('department_manager', 'workflows.read'),
-            ('department_manager', 'workflows.execute'),
-            ('department_manager', 'analytics.read'),
+        -- Company finance manager
+        ('company_finance_manager', 'core.companies.read'),
+        ('company_finance_manager', 'core.branches.read'),
+        ('company_finance_manager', 'core.departments.read'),
+        ('company_finance_manager', 'people.persons.read'),
+        ('company_finance_manager', 'people.relationships.read'),
+        ('company_finance_manager', 'finance.accounts.read'),
+        ('company_finance_manager', 'finance.accounts.manage'),
+        ('company_finance_manager', 'finance.transactions.read'),
+        ('company_finance_manager', 'finance.transactions.create'),
+        ('company_finance_manager', 'finance.transactions.post'),
+        ('company_finance_manager', 'finance.transactions.approve'),
+        ('company_finance_manager', 'documents.records.read'),
+        ('company_finance_manager', 'documents.records.create'),
+        ('company_finance_manager', 'documents.records.update'),
+        ('company_finance_manager', 'workflows.definitions.read'),
+        ('company_finance_manager', 'workflows.instances.read'),
+        ('company_finance_manager', 'workflows.instances.start'),
+        ('company_finance_manager', 'workflows.tasks.manage'),
+        ('company_finance_manager', 'analytics.views.read'),
+        ('company_finance_manager', 'audit.events.read'),
 
-            -- Finance manager
-            ('finance_manager', 'company.read'),
-            ('finance_manager', 'organization.read'),
-            ('finance_manager', 'people.read'),
-            ('finance_manager', 'finance.read'),
-            ('finance_manager', 'finance.manage'),
-            ('finance_manager', 'finance.post'),
-            ('finance_manager', 'finance.periods.close'),
-            ('finance_manager', 'documents.read'),
-            ('finance_manager', 'documents.manage'),
-            ('finance_manager', 'workflows.read'),
-            ('finance_manager', 'workflows.execute'),
-            ('finance_manager', 'analytics.read'),
-            ('finance_manager', 'audit.read'),
+        -- Company people manager
+        ('company_people_manager', 'core.companies.read'),
+        ('company_people_manager', 'core.branches.read'),
+        ('company_people_manager', 'core.departments.read'),
+        ('company_people_manager', 'core.departments.manage'),
+        ('company_people_manager', 'people.persons.read'),
+        ('company_people_manager', 'people.persons.create'),
+        ('company_people_manager', 'people.persons.update'),
+        ('company_people_manager', 'people.persons.archive'),
+        ('company_people_manager', 'people.relationships.read'),
+        ('company_people_manager', 'people.relationships.manage'),
+        ('company_people_manager', 'identity.accounts.read'),
+        ('company_people_manager', 'documents.records.read'),
+        ('company_people_manager', 'documents.records.create'),
+        ('company_people_manager', 'documents.records.update'),
+        ('company_people_manager', 'workflows.definitions.read'),
+        ('company_people_manager', 'workflows.instances.read'),
+        ('company_people_manager', 'workflows.instances.start'),
+        ('company_people_manager', 'workflows.tasks.manage'),
+        ('company_people_manager', 'analytics.views.read'),
+        ('company_people_manager', 'audit.events.read'),
 
-            -- Finance analyst
-            ('finance_analyst', 'company.read'),
-            ('finance_analyst', 'organization.read'),
-            ('finance_analyst', 'finance.read'),
-            ('finance_analyst', 'finance.manage'),
-            ('finance_analyst', 'documents.read'),
-            ('finance_analyst', 'workflows.read'),
-            ('finance_analyst', 'workflows.execute'),
-            ('finance_analyst', 'analytics.read'),
+        -- Company operations manager
+        ('company_operations_manager', 'core.companies.read'),
+        ('company_operations_manager', 'core.branches.read'),
+        ('company_operations_manager', 'core.branches.manage'),
+        ('company_operations_manager', 'core.departments.read'),
+        ('company_operations_manager', 'core.departments.manage'),
+        ('company_operations_manager', 'people.persons.read'),
+        ('company_operations_manager', 'people.relationships.read'),
+        ('company_operations_manager', 'finance.accounts.read'),
+        ('company_operations_manager', 'finance.transactions.read'),
+        ('company_operations_manager', 'finance.transactions.create'),
+        ('company_operations_manager', 'documents.records.read'),
+        ('company_operations_manager', 'documents.records.create'),
+        ('company_operations_manager', 'documents.records.update'),
+        ('company_operations_manager', 'workflows.definitions.read'),
+        ('company_operations_manager', 'workflows.instances.read'),
+        ('company_operations_manager', 'workflows.instances.start'),
+        ('company_operations_manager', 'workflows.tasks.manage'),
+        ('company_operations_manager', 'analytics.views.read'),
 
-            -- People manager
-            ('people_manager', 'company.read'),
-            ('people_manager', 'organization.read'),
-            ('people_manager', 'people.read'),
-            ('people_manager', 'people.manage'),
-            ('people_manager', 'relationships.read'),
-            ('people_manager', 'relationships.manage'),
-            ('people_manager', 'identity.accounts.read'),
-            ('people_manager', 'documents.read'),
-            ('people_manager', 'documents.manage'),
-            ('people_manager', 'workflows.read'),
-            ('people_manager', 'workflows.execute'),
-            ('people_manager', 'analytics.read'),
-            ('people_manager', 'audit.read'),
+        -- Company analyst
+        ('company_analyst', 'core.companies.read'),
+        ('company_analyst', 'core.branches.read'),
+        ('company_analyst', 'core.departments.read'),
+        ('company_analyst', 'people.persons.read'),
+        ('company_analyst', 'people.relationships.read'),
+        ('company_analyst', 'finance.accounts.read'),
+        ('company_analyst', 'finance.transactions.read'),
+        ('company_analyst', 'documents.records.read'),
+        ('company_analyst', 'workflows.definitions.read'),
+        ('company_analyst', 'workflows.instances.read'),
+        ('company_analyst', 'analytics.views.read'),
 
-            -- Operations manager
-            ('operations_manager', 'company.read'),
-            ('operations_manager', 'organization.read'),
-            ('operations_manager', 'organization.manage'),
-            ('operations_manager', 'people.read'),
-            ('operations_manager', 'relationships.read'),
-            ('operations_manager', 'relationships.manage'),
-            ('operations_manager', 'finance.read'),
-            ('operations_manager', 'documents.read'),
-            ('operations_manager', 'documents.manage'),
-            ('operations_manager', 'workflows.read'),
-            ('operations_manager', 'workflows.manage'),
-            ('operations_manager', 'workflows.execute'),
-            ('operations_manager', 'analytics.read'),
-            ('operations_manager', 'audit.read'),
+        -- Company read only
+        ('company_read_only', 'core.companies.read'),
+        ('company_read_only', 'core.branches.read'),
+        ('company_read_only', 'core.departments.read'),
+        ('company_read_only', 'people.persons.read'),
+        ('company_read_only', 'people.relationships.read'),
+        ('company_read_only', 'finance.accounts.read'),
+        ('company_read_only', 'finance.transactions.read'),
+        ('company_read_only', 'documents.records.read'),
+        ('company_read_only', 'workflows.definitions.read'),
+        ('company_read_only', 'workflows.instances.read'),
+        ('company_read_only', 'analytics.views.read'),
 
-            -- Document manager
-            ('document_manager', 'company.read'),
-            ('document_manager', 'organization.read'),
-            ('document_manager', 'people.read'),
-            ('document_manager', 'documents.read'),
-            ('document_manager', 'documents.manage'),
-            ('document_manager', 'documents.approve'),
-            ('document_manager', 'workflows.read'),
-            ('document_manager', 'workflows.execute'),
-            ('document_manager', 'audit.read'),
+        -- Service integration
+        ('service_integration', 'core.companies.read'),
+        ('service_integration', 'core.branches.read'),
+        ('service_integration', 'core.departments.read'),
+        ('service_integration', 'people.persons.read'),
+        ('service_integration', 'finance.accounts.read'),
+        ('service_integration', 'finance.transactions.read'),
+        ('service_integration', 'finance.transactions.create'),
+        ('service_integration', 'documents.records.read'),
+        ('service_integration', 'documents.records.create'),
+        ('service_integration', 'workflows.definitions.read'),
+        ('service_integration', 'workflows.instances.read'),
+        ('service_integration', 'workflows.instances.start'),
 
-            -- Workflow manager
-            ('workflow_manager', 'company.read'),
-            ('workflow_manager', 'organization.read'),
-            ('workflow_manager', 'people.read'),
-            ('workflow_manager', 'relationships.read'),
-            ('workflow_manager', 'documents.read'),
-            ('workflow_manager', 'workflows.read'),
-            ('workflow_manager', 'workflows.manage'),
-            ('workflow_manager', 'workflows.execute'),
-            ('workflow_manager', 'analytics.read'),
-            ('workflow_manager', 'audit.read'),
+        -- Branch manager
+        ('branch_manager', 'core.branches.read'),
+        ('branch_manager', 'core.branches.manage'),
+        ('branch_manager', 'core.departments.read'),
+        ('branch_manager', 'core.departments.manage'),
+        ('branch_manager', 'people.persons.read'),
+        ('branch_manager', 'people.relationships.read'),
+        ('branch_manager', 'finance.accounts.read'),
+        ('branch_manager', 'finance.transactions.read'),
+        ('branch_manager', 'finance.transactions.create'),
+        ('branch_manager', 'documents.records.read'),
+        ('branch_manager', 'documents.records.create'),
+        ('branch_manager', 'documents.records.update'),
+        ('branch_manager', 'workflows.definitions.read'),
+        ('branch_manager', 'workflows.instances.read'),
+        ('branch_manager', 'workflows.instances.start'),
+        ('branch_manager', 'workflows.tasks.manage'),
+        ('branch_manager', 'analytics.views.read'),
 
-            -- Auditor
-            ('auditor', 'company.read'),
-            ('auditor', 'organization.read'),
-            ('auditor', 'people.read'),
-            ('auditor', 'relationships.read'),
-            ('auditor', 'identity.accounts.read'),
-            ('auditor', 'identity.access.read'),
-            ('auditor', 'finance.read'),
-            ('auditor', 'documents.read'),
-            ('auditor', 'workflows.read'),
-            ('auditor', 'analytics.read'),
-            ('auditor', 'audit.read'),
+        -- Branch operator
+        ('branch_operator', 'core.branches.read'),
+        ('branch_operator', 'core.departments.read'),
+        ('branch_operator', 'people.persons.read'),
+        ('branch_operator', 'finance.accounts.read'),
+        ('branch_operator', 'finance.transactions.read'),
+        ('branch_operator', 'finance.transactions.create'),
+        ('branch_operator', 'documents.records.read'),
+        ('branch_operator', 'documents.records.create'),
+        ('branch_operator', 'workflows.definitions.read'),
+        ('branch_operator', 'workflows.instances.read'),
+        ('branch_operator', 'workflows.instances.start'),
+        ('branch_operator', 'analytics.views.read'),
 
-            -- General read-only user
-            ('read_only', 'company.read'),
-            ('read_only', 'organization.read'),
-            ('read_only', 'people.read'),
-            ('read_only', 'relationships.read'),
-            ('read_only', 'finance.read'),
-            ('read_only', 'documents.read'),
-            ('read_only', 'workflows.read'),
-            ('read_only', 'analytics.read')
-    ) AS specialized_roles (role_key, permission_key)
+        -- Department manager
+        ('department_manager', 'core.departments.read'),
+        ('department_manager', 'people.persons.read'),
+        ('department_manager', 'people.persons.update'),
+        ('department_manager', 'people.relationships.read'),
+        ('department_manager', 'documents.records.read'),
+        ('department_manager', 'documents.records.create'),
+        ('department_manager', 'documents.records.update'),
+        ('department_manager', 'documents.records.approve'),
+        ('department_manager', 'workflows.definitions.read'),
+        ('department_manager', 'workflows.instances.read'),
+        ('department_manager', 'workflows.instances.start'),
+        ('department_manager', 'workflows.tasks.manage'),
+        ('department_manager', 'analytics.views.read'),
+
+        -- Department member
+        ('department_member', 'core.departments.read'),
+        ('department_member', 'people.persons.read'),
+        ('department_member', 'documents.records.read'),
+        ('department_member', 'documents.records.create'),
+        ('department_member', 'workflows.definitions.read'),
+        ('department_member', 'workflows.instances.read'),
+        ('department_member', 'workflows.instances.start'),
+        ('department_member', 'analytics.views.read')
 )
 INSERT INTO identity.role_permissions (
     role_id,
     permission_id
 )
 SELECT
-    roles.role_id,
-    permissions.permission_id
-FROM role_permission_keys
-JOIN identity.access_roles AS roles
-    USING (role_key)
-JOIN identity.permissions AS permissions
-    USING (permission_key)
-ON CONFLICT (role_id, permission_id) DO NOTHING;
-
+    r.role_id,
+    p.permission_id
+FROM role_permission_pairs AS pair
+JOIN identity.access_roles AS r
+    ON r.role_key = pair.role_key
+JOIN identity.permissions AS p
+    ON p.permission_key = pair.permission_key
+ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- Document types
